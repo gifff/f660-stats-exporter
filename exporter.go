@@ -206,24 +206,26 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(e.wlanSentPackets, prometheus.CounterValue, float64(wlanStat.PacketsSent), wlanStat.Name)
 	}
 
-	ch <- prometheus.MustNewConstMetric(e.wanInfo, prometheus.GaugeValue, 1,
-		wanStats.ConnectionName,
-		wanStats.Type,
-		wanStats.IPVersion,
-		strconv.FormatBool(wanStats.NATEnabled),
-		wanStats.MACAddress,
-	)
-	ch <- prometheus.MustNewConstMetric(e.wanIPv4Info, prometheus.GaugeValue, 1,
-		wanStats.ConnectionName,
-		wanStats.IPv4.Address,
-		wanStats.IPv4.SubnetMask,
-		wanStats.IPv4.Gateway,
-		strings.Join(wanStats.DNSes, ","),
-	)
-	ch <- prometheus.MustNewConstMetric(e.wanIPv4ConnectionStatus, prometheus.GaugeValue, 1, wanStats.ConnectionName, wanStats.IPv4.ConnectionStatus)
-	ch <- prometheus.MustNewConstMetric(e.wanIPv4DisconnectReason, prometheus.GaugeValue, 1, wanStats.ConnectionName, wanStats.IPv4.DisconnectReason)
-	ch <- prometheus.MustNewConstMetric(e.wanIPv4OnlineDuration, prometheus.CounterValue, float64(wanStats.IPv4.OnlineDuration), wanStats.ConnectionName)
-	ch <- prometheus.MustNewConstMetric(e.wanIPv4RemainingLeaseTime, prometheus.GaugeValue, float64(wanStats.IPv4.RemainingLeaseTime), wanStats.ConnectionName)
+	if wanStats != nil {
+		ch <- prometheus.MustNewConstMetric(e.wanInfo, prometheus.GaugeValue, 1,
+			wanStats.ConnectionName,
+			wanStats.Type,
+			wanStats.IPVersion,
+			strconv.FormatBool(wanStats.NATEnabled),
+			wanStats.MACAddress,
+		)
+		ch <- prometheus.MustNewConstMetric(e.wanIPv4Info, prometheus.GaugeValue, 1,
+			wanStats.ConnectionName,
+			wanStats.IPv4.Address,
+			wanStats.IPv4.SubnetMask,
+			wanStats.IPv4.Gateway,
+			strings.Join(wanStats.DNSes, ","),
+		)
+		ch <- prometheus.MustNewConstMetric(e.wanIPv4ConnectionStatus, prometheus.GaugeValue, 1, wanStats.ConnectionName, wanStats.IPv4.ConnectionStatus)
+		ch <- prometheus.MustNewConstMetric(e.wanIPv4DisconnectReason, prometheus.GaugeValue, 1, wanStats.ConnectionName, wanStats.IPv4.DisconnectReason)
+		ch <- prometheus.MustNewConstMetric(e.wanIPv4OnlineDuration, prometheus.CounterValue, float64(wanStats.IPv4.OnlineDuration), wanStats.ConnectionName)
+		ch <- prometheus.MustNewConstMetric(e.wanIPv4RemainingLeaseTime, prometheus.GaugeValue, float64(wanStats.IPv4.RemainingLeaseTime), wanStats.ConnectionName)
+	}
 
 	e.totalScrapes.Collect(ch)
 	e.scrapeErrors.Collect(ch)
